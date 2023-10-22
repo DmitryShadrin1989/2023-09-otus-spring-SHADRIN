@@ -13,8 +13,8 @@ import java.util.List;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static ru.otus.hw.service.QuestionTestData.QUESTION_1;
-import static ru.otus.hw.service.QuestionTestData.QUESTION_2;
+import static ru.otus.hw.service.QuestionTestData.getQuestion1;
+import static ru.otus.hw.service.QuestionTestData.getQuestion2;
 
 @ExtendWith(MockitoExtension.class)
 class TestServiceImplTest {
@@ -27,7 +27,7 @@ class TestServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        given(questionDao.findAll()).willReturn(List.of(QUESTION_1, QUESTION_2));
+        given(questionDao.findAll()).willReturn(List.of(getQuestion1(), getQuestion2()));
     }
 
     @Test

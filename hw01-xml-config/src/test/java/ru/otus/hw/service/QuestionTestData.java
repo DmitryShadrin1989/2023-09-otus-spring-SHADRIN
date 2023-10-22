@@ -7,9 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class QuestionTestData {
-    public static final Question QUESTION_1 = getQuestion1();
-    public static final Question QUESTION_2 = getQuestion2();
-
     public static Question getQuestion1() {
         String text = "Which option is a good way to handle the exception?";
         List<Answer> answerList = new ArrayList<>();

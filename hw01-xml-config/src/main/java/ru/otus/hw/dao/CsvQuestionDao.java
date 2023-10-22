@@ -7,10 +7,12 @@ import ru.otus.hw.dao.dto.QuestionDto;
 import ru.otus.hw.domain.Question;
 import ru.otus.hw.exceptions.QuestionReadException;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static java.util.Objects.isNull;
 
 @RequiredArgsConstructor
 public class CsvQuestionDao implements QuestionDao {
@@ -20,26 +22,21 @@ public class CsvQuestionDao implements QuestionDao {
     public List<Question> findAll() {
         String fileName = fileNameProvider.getTestFileName();
         InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fileName);
-        List<QuestionDto> questionDtoList;
-        try {
-            InputStreamReader inputStreamReader;
-            if (inputStream != null) {
-                inputStreamReader = new InputStreamReader(inputStream);
-            } else {
-                throw new NullPointerException();
-            }
-            questionDtoList = new CsvToBeanBuilder<QuestionDto>(inputStreamReader)
+        if (isNull(inputStream)) {
+            throw new QuestionReadException("Test file resource not found", new FileNotFoundException());
+        }
+        try (InputStreamReader inputStreamReader = new InputStreamReader(inputStream)) {
+            List<QuestionDto> questionDtoList = new CsvToBeanBuilder<QuestionDto>(inputStreamReader)
                     .withSeparator('$')
                     .withSkipLines(1)
                     .withType(QuestionDto.class)
                     .build()
                     .parse();
-            if (questionDtoList == null) {
-                throw new NullPointerException();
-            }
+            return questionDtoList.stream()
+                    .map(QuestionDto::toDomainObject)
+                    .toList();
         } catch (Exception e) {
             throw new QuestionReadException("Error when reading questions", e);
         }
-        return questionDtoList.stream().map(QuestionDto::toDomainObject).collect(Collectors.toList());
     }
 }
