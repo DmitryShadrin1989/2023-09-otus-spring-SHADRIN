@@ -77,10 +77,7 @@ class CommentRepositoryJpaTest {
                     .matches(comment -> comment.getId() > 0)
                     .usingRecursiveComparison().ignoringExpectedNullFields().isEqualTo(expectedComment);
 
-            assertThat(repository.findById(returnedComment.getId()))
-                    .isPresent()
-                    .get()
-                    .isEqualTo(returnedComment);
+            assertThat(em.find(Comment.class, returnedComment.getId())).isEqualTo(returnedComment);
         }
     }
 
@@ -89,29 +86,23 @@ class CommentRepositoryJpaTest {
     void shouldSaveUpdatedComment() {
         List<Comment> changeComments = List.of(changeCommentForFirstBook, changeCommentForSecondBook);
         for (Comment expectedComment : changeComments) {
-            assertThat(repository.findById(expectedComment.getId()))
-                    .isPresent()
-                    .get()
-                    .isNotEqualTo(expectedComment);
+            assertThat(em.find(Comment.class, expectedComment.getId())).isNotEqualTo(expectedComment);
 
             var returnedComment = repository.save(expectedComment);
             assertThat(returnedComment).isNotNull()
                     .matches(comment -> comment.getId() > 0)
                     .usingRecursiveComparison().ignoringExpectedNullFields().isEqualTo(expectedComment);
 
-            assertThat(repository.findById(returnedComment.getId()))
-                    .isPresent()
-                    .get()
-                    .isEqualTo(returnedComment);
+            assertThat(em.find(Comment.class, returnedComment.getId())).isEqualTo(returnedComment);
         }
     }
 
     @DisplayName("должен удалять комментарий по id ")
     @Test
     void shouldDeleteComment() {
-        assertThat(repository.findById(1L)).isPresent();
+        assertThat(em.find(Comment.class, 1L)).isNotNull();
         repository.deleteById(1L);
-        assertThat(repository.findById(1L)).isEmpty();
+        assertThat(em.find(Comment.class, 1L)).isNull();
     }
 
     private Book getBookFromDb(long bookId) {

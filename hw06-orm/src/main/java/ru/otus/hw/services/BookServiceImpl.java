@@ -3,11 +3,13 @@ package ru.otus.hw.services;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.otus.hw.dto.BookDto;
 import ru.otus.hw.exceptions.EntityNotFoundException;
 import ru.otus.hw.models.Book;
 import ru.otus.hw.repositories.AuthorRepository;
 import ru.otus.hw.repositories.BookRepository;
 import ru.otus.hw.repositories.GenreRepository;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -25,26 +27,32 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Book> findById(long id) {
-        return bookRepository.findById(id);
+    public BookDto findById(long id) {
+        Optional<Book> book = bookRepository.findById(id);
+        if (book.isEmpty()) {
+            throw new EntityNotFoundException("Book with id %d not found".formatted(id));
+        }
+        return new BookDto(book.get());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Book> findAll() {
-        return bookRepository.findAll();
+    public List<BookDto> findAll() {
+        return bookRepository.findAll().stream()
+                .map(BookDto::new)
+                .toList();
     }
 
     @Override
     @Transactional
-    public Book insert(String title, long authorId, List<Long> genresIds) {
-        return save(0, title, authorId, genresIds);
+    public BookDto insert(String title, long authorId, List<Long> genresIds) {
+        return new BookDto(save(0, title, authorId, genresIds));
     }
 
     @Override
     @Transactional
-    public Book update(long id, String title, long authorId, List<Long> genresIds) {
-        return save(id, title, authorId, genresIds);
+    public BookDto update(long id, String title, long authorId, List<Long> genresIds) {
+        return new BookDto(save(id, title, authorId, genresIds));
     }
 
     @Override

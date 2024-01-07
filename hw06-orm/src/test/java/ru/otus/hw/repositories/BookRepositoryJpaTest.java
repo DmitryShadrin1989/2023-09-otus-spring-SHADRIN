@@ -81,38 +81,29 @@ class BookRepositoryJpaTest {
                 .matches(book -> book.getId() > 0)
                 .usingRecursiveComparison().ignoringExpectedNullFields().isEqualTo(expectedBook);
 
-        assertThat(repository.findById(returnedBook.getId()))
-                .isPresent()
-                .get()
-                .isEqualTo(returnedBook);
+        assertThat(em.find(Book.class, returnedBook.getId())).isEqualTo(returnedBook);
     }
 
     @DisplayName("должен сохранять измененную книгу")
     @Test
     void shouldSaveUpdatedBook() {
         var expectedBook = changeBook;
-        assertThat(repository.findById(expectedBook.getId()))
-                .isPresent()
-                .get()
-                .isNotEqualTo(expectedBook);
+        assertThat(em.find(Book.class, expectedBook.getId())).isNotEqualTo(expectedBook);
 
         var returnedBook = repository.save(expectedBook);
         assertThat(returnedBook).isNotNull()
                 .matches(book -> book.getId() > 0)
                 .usingRecursiveComparison().ignoringExpectedNullFields().isEqualTo(expectedBook);
 
-        assertThat(repository.findById(returnedBook.getId()))
-                .isPresent()
-                .get()
-                .isEqualTo(returnedBook);
+        assertThat(em.find(Book.class, returnedBook.getId())).isEqualTo(returnedBook);
     }
 
     @DisplayName("должен удалять книгу по id ")
     @Test
     void shouldDeleteBook() {
-        assertThat(repository.findById(1L)).isPresent();
+        assertThat(em.find(Book.class, 1L)).isNotNull();
         repository.deleteById(1L);
-        assertThat(repository.findById(1L)).isEmpty();
+        assertThat(em.find(Book.class, 1L)).isNull();
     }
 
     private static List<Author> getDbAuthors() {
