@@ -10,9 +10,7 @@ import ru.otus.hw.repositories.AuthorRepository;
 import ru.otus.hw.repositories.BookRepository;
 import ru.otus.hw.repositories.GenreRepository;
 
-
 import java.util.List;
-import java.util.Optional;
 
 import static org.springframework.util.CollectionUtils.isEmpty;
 
@@ -28,11 +26,9 @@ public class BookServiceImpl implements BookService {
     @Override
     @Transactional(readOnly = true)
     public BookDto findById(long id) {
-        Optional<Book> book = bookRepository.findById(id);
-        if (book.isEmpty()) {
-            throw new EntityNotFoundException("Book with id %d not found".formatted(id));
-        }
-        return new BookDto(book.get());
+        return bookRepository.findById(id)
+                .map(BookDto::new)
+                .orElseThrow(() -> new EntityNotFoundException("Book with id %d not found".formatted(id)));
     }
 
     @Override
