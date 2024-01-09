@@ -9,8 +9,8 @@ import ru.otus.hw.domain.Student;
 import ru.otus.hw.domain.TestResult;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -37,10 +37,9 @@ public class TestServiceImpl implements TestService {
 
     private Answer getAnswerToTheQuestion(Question question) {
         ioService.printLine(question.text());
-        AtomicInteger countAnswer = new AtomicInteger();
         List<Answer> answers = question.answers();
-        String answersForPrint = answers.stream()
-                .map(a -> countAnswer.incrementAndGet() + ": " + a.text())
+        String answersForPrint = IntStream.range(1, answers.size() + 1).boxed()
+                .map(i -> i + ": " + answers.get(i - 1).text())
                 .collect(Collectors.joining(String.format("%n")));
         ioService.printLine(answersForPrint);
         int answerNum = ioService.readIntForRangeWithPromptLocalized(1, answers.size(),

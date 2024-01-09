@@ -15,7 +15,7 @@ import static ru.otus.hw.dao.QuestionTestData.*;
 @DisplayName("Репозиторий для чтения вопросов с ответами из CSV файла ")
 class CsvQuestionDaoTest {
 
-    QuestionDao questionDao;
+    private QuestionDao questionDao;
 
     @BeforeEach
     void setUp() {

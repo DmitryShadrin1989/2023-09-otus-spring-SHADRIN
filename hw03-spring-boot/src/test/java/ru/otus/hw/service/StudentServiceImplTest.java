@@ -13,25 +13,23 @@ import static ru.otus.hw.service.StudentTestData.getStudent1;
 @DisplayName("Сервис для работы с сущностью Student ")
 class StudentServiceImplTest {
 
-    LocalizedIOService ioService;
+    private LocalizedIOService ioService;
 
-    StudentService studentService;
-
-    Student DB_STUDENT_1 = getStudent1();
+    private StudentService studentService;
 
     @BeforeEach
     void setUp() {
         ioService = mock(LocalizedIOServiceImpl.class);
         studentService = new StudentServiceImpl(ioService);
-        when(ioService.readStringWithPromptLocalized("StudentService.input.first.name")).thenReturn(DB_STUDENT_1.firstName());
-        when(ioService.readStringWithPromptLocalized("StudentService.input.last.name")).thenReturn(DB_STUDENT_1.lastName());
     }
 
     @Test
     @DisplayName("Должен возвращать корректно созданный экземпляр класса Student ")
     void shouldReturnStudent() {
+        Student expectedStudent = getStudent1();
+        when(ioService.readStringWithPromptLocalized("StudentService.input.first.name")).thenReturn(expectedStudent.firstName());
+        when(ioService.readStringWithPromptLocalized("StudentService.input.last.name")).thenReturn(expectedStudent.lastName());
         Student actualStudent = studentService.determineCurrentStudent();
-        Student expectedStudent = new Student(DB_STUDENT_1.firstName(), DB_STUDENT_1.lastName());
         assertThat(actualStudent)
                 .usingRecursiveComparison()
                 .isEqualTo(expectedStudent);
