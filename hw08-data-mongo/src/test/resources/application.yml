@@ -1,0 +1,29 @@
+spring:
+  data:
+    mongodb:
+      host: localHost
+      port: 0 # when flapdoodle using
+      database: testLibraryMongo
+  shell:
+    interactive:
+      enabled: false
+
+    command:
+      version:
+        enabled: false
+
+
+de:
+  flapdoodle:
+    mongodb:
+      embedded:
+        version: 4.0.2
+
+mongock:
+  runner-type: "InitializingBean"
+  change-logs-scan-package:
+    - ru.otus.hw.mongodb.changelogs.test
+  mongo-db:
+    write-concern:
+      journal: false
+    read-concern: local
