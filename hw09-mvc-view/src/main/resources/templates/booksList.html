@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>List of all books</title>
+    <style type="text/css">
+      .books {
+        border: 1px solid steelblue;
+        width: 300px;
+        border-collapse: collapse;
+      }
+
+      .books tr td, th {
+        padding: 5px;
+        border: 1px solid steelblue;
+      }
+
+      .books td:last-child, td:first-child {
+        width: 50px;
+      }
+    </style>
+</head>
+
+<body>
+
+<a th:href="@{/library}" href="homePage.html">Home</a>
+<br>
+<h3>Books:</h3>
+<table class="books">
+  <thead>
+  <tr>
+    <th>№</th>
+    <th>Title</th>
+    <th>Author</th>
+    <th>Genres</th>
+    <th>Action</th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <tr th:each="book,stat : ${books}">
+    <td th:text="${stat.index + 1}">1</td>
+    <td th:text="${book.getTitle()}">Three hearts and three lions</td>
+    <td th:text="${book.getAuthor().getFullName()}">Paul Anderson</td>
+    <td th:text="${book.getStringGenres()}">Science fiction; Novel</td>
+    <td>
+      <a th:href="@{/library/comments/book(bookId=${book.getId()})}" href="commentListForBook.html">View comments</a>
+      <a th:href="@{/library/books/edit/{id}(id=${book.getId()})}" href="bookEdit.html">Edit</a>
+      <form action="#" th:method="post" th:action="@{/library/books/delete/{id}(id=${book.getId()})}">
+        <button type="submit">
+          Delete
+        </button>
+      </form>
+    </td>
+  </tr>
+  </tbody>
+</table>
+<br>
+<a th:href="@{/library/books/create}" href="bookCreate.html" type="button"><button>Add book</button></a>
+
+</body>
+</html>
