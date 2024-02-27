@@ -51,8 +51,8 @@
 
     <label>Genres:</label>
     <div th:each="genre : ${genres}">
-        <td> <input type="checkbox" name="genreIds" th:value="${genre.getId()}" th:checked="${genre.isPicked()}"/>
-        <td th:text="${genre.getName()}"/>
+        <input type="checkbox" name="genreIds" th:value="${genre.getId()}"
+                   th:checked="${genre.isPicked()}" th:text="${genre.getName()}"/>
     </div>
     <div class="errors" th:if="${#fields.hasErrors('genreIds')}">Wrong genre error</div>
 

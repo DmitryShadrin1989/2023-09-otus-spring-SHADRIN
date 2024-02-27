@@ -50,7 +50,7 @@
 
     <div class="row">
         <button type="submit">Save</button>
-        <a href="commentListForBook.html" th:href="@{/library/comments/book(bookId=${comment.getBookId()})}">
+        <a href="commentListForBook.html" th:href="@{/library/comments(bookId=${comment.getBookId()})}">
             <button type="button">Cancel</button>
         </a>
     </div>

@@ -44,7 +44,7 @@
     <td th:text="${book.getAuthor().getFullName()}">Paul Anderson</td>
     <td th:text="${book.getStringGenres()}">Science fiction; Novel</td>
     <td>
-      <a th:href="@{/library/comments/book(bookId=${book.getId()})}" href="commentListForBook.html">View comments</a>
+      <a th:href="@{/library/comments(bookId=${book.getId()})}" href="commentListForBook.html">View comments</a>
       <a th:href="@{/library/books/edit/{id}(id=${book.getId()})}" href="bookEdit.html">Edit</a>
       <form action="#" th:method="post" th:action="@{/library/books/delete/{id}(id=${book.getId()})}">
         <button type="submit">

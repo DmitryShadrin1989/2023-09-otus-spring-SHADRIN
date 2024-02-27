@@ -4,15 +4,6 @@ spring:
       host: localHost
       port: 0 # when flapdoodle using
       database: libraryMongo
-  shell:
-    interactive:
-      enabled: true
-    noninteractive:
-      enabled: false
-
-    command:
-      version:
-        enabled: false
 
 de:
   flapdoodle:

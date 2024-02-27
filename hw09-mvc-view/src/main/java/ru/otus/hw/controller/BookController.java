@@ -9,7 +9,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import ru.otus.hw.dto.BookDto;
 import ru.otus.hw.dto.BookInsertUpdateDto;
@@ -21,12 +20,9 @@ import ru.otus.hw.services.GenreService;
 import java.util.List;
 
 @Controller
-@RequestMapping(BookController.URL)
 @RequiredArgsConstructor
 @Getter
 public class BookController {
-
-    public static final String URL = "/library/books";
 
     private final BookService bookService;
 
@@ -34,14 +30,14 @@ public class BookController {
 
     private final GenreService genreService;
 
-    @GetMapping()
+    @GetMapping("/library/books")
     public String listBooksPage(Model model) {
         List<BookDto> books = bookService.findAll();
         model.addAttribute("books", books);
         return "booksList";
     }
 
-    @GetMapping("/create")
+    @GetMapping("/library/books/create")
     public String createPage(Model model) {
         model.addAttribute("book", new BookInsertUpdateDto(null, "New book", null, null));
         model.addAttribute("authors", authorService.findAll());
@@ -49,7 +45,7 @@ public class BookController {
         return "bookCreate";
     }
 
-    @PostMapping("/create")
+    @PostMapping("/library/books/create")
     public String createBook(@Valid @ModelAttribute("book") BookInsertUpdateDto book,
                            BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
@@ -58,10 +54,10 @@ public class BookController {
             return "bookCreate";
         }
         bookService.insert(book);
-        return "redirect:" + URL;
+        return "redirect:/library/books";
     }
 
-    @GetMapping("/edit/{id}")
+    @GetMapping("/library/books/edit/{id}")
     public String editPage(@PathVariable String id, Model model) {
         BookInsertUpdateDto book = BookInsertUpdateDto.toDto(bookService.findById(id));
         model.addAttribute("book", book);
@@ -70,7 +66,7 @@ public class BookController {
         return "bookEdit";
     }
 
-    @PostMapping("/edit/{id}")
+    @PostMapping("/library/books/edit/{id}")
     public String editBook(@PathVariable String id, @Valid @ModelAttribute("book") BookInsertUpdateDto book,
                            BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
@@ -79,12 +75,12 @@ public class BookController {
             return "bookEdit";
         }
         bookService.update(book);
-        return "redirect:" + URL;
+        return "redirect:/library/books";
     }
 
-    @PostMapping("/delete/{id}")
+    @PostMapping("/library/books/delete/{id}")
     public String deleteBook(@PathVariable String id) {
         bookService.deleteById(id);
-        return "redirect:" + URL;
+        return "redirect:/library/books";
     }
 }

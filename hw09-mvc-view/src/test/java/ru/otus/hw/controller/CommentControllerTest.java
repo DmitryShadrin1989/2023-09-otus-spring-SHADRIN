@@ -67,7 +67,7 @@ class CommentControllerTest {
         given(commentService.findAllByBookId(book.getId())).willReturn(dbMapBooksComments.get(book.getId()));
         given(bookService.findById(book.getId())).willReturn(new BookDto(book));
 
-        mvc.perform(get(CommentController.URL + "/book").param("bookId", book.getId()))
+        mvc.perform(get("/library/comments").param("bookId", book.getId()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("commentListForBook"))
                 .andExpect(model().attributeExists("book"))
@@ -79,7 +79,7 @@ class CommentControllerTest {
     void shouldReturnCommentCreatePage() throws Exception {
         given(bookService.findAll()).willReturn(BookDto.toDtoList(dbBooks));
 
-        mvc.perform(get(CommentController.URL + "/create").param("bookId", dbNewComment.getBook().getId()))
+        mvc.perform(get("/library/comments/create").param("bookId", dbNewComment.getBook().getId()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("commentCreate"))
                 .andExpect(model().attributeExists("books"));
@@ -90,10 +90,10 @@ class CommentControllerTest {
     void shouldCreateComment() throws Exception {
         CommentInsertUpdateDto commentInsert = CommentInsertUpdateDto.toDto(dbNewComment);
 
-        mvc.perform(post(CommentController.URL + "/create")
+        mvc.perform(post("/library/comments/create")
                         .flashAttr("comment", commentInsert))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl(CommentController.URL + "/book?bookId=" + commentInsert.getBookId()));
+                .andExpect(redirectedUrl("/library/comments?bookId=" + commentInsert.getBookId()));
 
         verify(commentService, times(1)).insert(commentInsert);
     }
@@ -104,7 +104,7 @@ class CommentControllerTest {
         given(commentService.findById(dbChangeComment.getId())).willReturn(Optional.ofNullable(dbChangeComment));
         given(bookService.findAll()).willReturn(BookDto.toDtoList(dbBooks));
 
-        mvc.perform(get(CommentController.URL + "/edit/{id}", dbChangeComment.getId()))
+        mvc.perform(get("/library/comments/edit/{id}", dbChangeComment.getId()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("commentEdit"))
                 .andExpect(model().attributeExists("books", "comment"));
@@ -115,10 +115,10 @@ class CommentControllerTest {
     void shouldEditComment() throws Exception {
         CommentInsertUpdateDto commentUpdate = CommentInsertUpdateDto.toDto(dbChangeComment);
 
-        mvc.perform(post(CommentController.URL + "/edit/{id}", dbChangeComment.getId())
+        mvc.perform(post("/library/comments/edit/{id}", dbChangeComment.getId())
                         .flashAttr("comment", commentUpdate))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl(CommentController.URL + "/book?bookId=" + commentUpdate.getBookId()));
+                .andExpect(redirectedUrl("/library/comments?bookId=" + commentUpdate.getBookId()));
 
         verify(commentService, times(1)).update(commentUpdate);
     }
@@ -126,10 +126,10 @@ class CommentControllerTest {
     @Test
     @DisplayName("должен удалить комментарий к книге и сделать редирект")
     void shouldDeleteComment() throws Exception {
-        mvc.perform(post(CommentController.URL + "/delete/{id}", dbChangeComment.getId())
+        mvc.perform(post("/library/comments/delete/{id}", dbChangeComment.getId())
                         .param("bookId", dbChangeComment.getBook().getId()))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl(CommentController.URL + "/book?bookId=" + dbChangeComment.getBook().getId()));
+                .andExpect(redirectedUrl("/library/comments?bookId=" + dbChangeComment.getBook().getId()));
 
         verify(commentService, times(1)).deleteById(dbChangeComment.getId());
     }

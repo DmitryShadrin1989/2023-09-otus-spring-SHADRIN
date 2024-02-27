@@ -9,7 +9,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.otus.hw.dto.BookDto;
@@ -22,18 +21,15 @@ import ru.otus.hw.services.CommentService;
 import java.util.List;
 
 @Controller
-@RequestMapping(CommentController.URL)
 @RequiredArgsConstructor
 @Getter
 public class CommentController {
-
-    public static final String URL = "/library/comments";
 
     private final BookService bookService;
 
     private final CommentService commentService;
 
-    @GetMapping("/book")
+    @GetMapping("/library/comments")
     public String listCommentsPage(@RequestParam("bookId") String bookId, Model model) {
         List<Comment> comments = commentService.findAllByBookId(bookId);
         BookDto book = bookService.findById(bookId);
@@ -42,14 +38,14 @@ public class CommentController {
         return "commentListForBook";
     }
 
-    @GetMapping("/create")
+    @GetMapping("/library/comments/create")
     public String createPage(@RequestParam("bookId") String bookId, Model model) {
         model.addAttribute("comment", new  CommentInsertUpdateDto(null, null, bookId));
         model.addAttribute("books", bookService.findAll());
         return "commentCreate";
     }
 
-    @PostMapping("/create")
+    @PostMapping("/library/comments/create")
     public String createComment(@Valid @ModelAttribute("comment") CommentInsertUpdateDto comment,
                              BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
@@ -57,10 +53,10 @@ public class CommentController {
             return "commentCreate";
         }
         commentService.insert(comment);
-        return "redirect:" + URL + "/book?bookId=" + comment.getBookId();
+        return "redirect:/library/comments?bookId=" + comment.getBookId();
     }
 
-    @GetMapping("/edit/{id}")
+    @GetMapping("/library/comments/edit/{id}")
     public String editPage(@PathVariable String id, Model model) {
         model.addAttribute("comment", CommentInsertUpdateDto.toDto(commentService.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(
@@ -69,7 +65,7 @@ public class CommentController {
         return "commentEdit";
     }
 
-    @PostMapping("/edit/{id}")
+    @PostMapping("/library/comments/edit/{id}")
     public String editComment(@PathVariable String id, @Valid @ModelAttribute("comment") CommentInsertUpdateDto comment,
                            BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
@@ -77,12 +73,12 @@ public class CommentController {
             return "commentEdit";
         }
         commentService.update(comment);
-        return "redirect:" + URL + "/book?bookId=" + comment.getBookId();
+        return "redirect:/library/comments?bookId=" + comment.getBookId();
     }
 
-    @PostMapping("/delete/{id}")
+    @PostMapping("/library/comments/delete/{id}")
     public String deleteComment(@PathVariable String id, @RequestParam("bookId") String bookId) {
         commentService.deleteById(id);
-        return "redirect:" + URL + "/book?bookId=" + bookId;
+        return "redirect:/library/comments?bookId=" + bookId;
     }
 }

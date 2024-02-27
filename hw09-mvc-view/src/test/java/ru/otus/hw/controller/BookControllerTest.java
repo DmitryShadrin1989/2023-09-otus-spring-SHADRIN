@@ -71,7 +71,7 @@ class BookControllerTest {
     void shouldReturnBookListPage() throws Exception {
         given(bookService.findAll()).willReturn(dbBooks);
 
-        mvc.perform(get(BookController.URL))
+        mvc.perform(get("/library/books"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("booksList"))
                 .andExpect(model().attributeExists("books"))
@@ -84,7 +84,7 @@ class BookControllerTest {
         given(authorService.findAll()).willReturn(dbAuthors);
         given(genreService.findAll()).willReturn(dbGenres);
 
-        mvc.perform(get(BookController.URL + "/create"))
+        mvc.perform(get("/library/books/create"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("bookCreate"))
                 .andExpect(model().attribute("authors", dbAuthors))
@@ -97,10 +97,10 @@ class BookControllerTest {
     void shouldCreateBook() throws Exception {
         BookInsertUpdateDto bookInsert = BookInsertUpdateDto.toDto(new BookDto(newBook));
 
-        mvc.perform(post(BookController.URL + "/create")
+        mvc.perform(post("/library/books/create")
                 .flashAttr("book", bookInsert))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl(BookController.URL));
+                .andExpect(redirectedUrl("/library/books"));
 
         verify(bookService, times(1)).insert(bookInsert);
     }
@@ -112,7 +112,7 @@ class BookControllerTest {
         given(authorService.findAll()).willReturn(dbAuthors);
         given(genreService.findAll()).willReturn(dbGenres);
 
-        mvc.perform(get(BookController.URL + "/edit/{id}", changeBook.getId()))
+        mvc.perform(get("/library/books/edit/{id}", changeBook.getId()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("bookEdit"))
                 .andExpect(model().attribute("authors", dbAuthors))
@@ -126,10 +126,10 @@ class BookControllerTest {
     void shouldEditBook() throws Exception {
         BookInsertUpdateDto bookEdit = BookInsertUpdateDto.toDto(new BookDto(changeBook));
 
-        mvc.perform(post(BookController.URL + "/edit/{id}", changeBook.getId())
+        mvc.perform(post("/library/books/edit/{id}", changeBook.getId())
                         .flashAttr("book", bookEdit))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl(BookController.URL));
+                .andExpect(redirectedUrl("/library/books"));
 
         verify(bookService, times(1)).update(bookEdit);
     }
@@ -137,9 +137,9 @@ class BookControllerTest {
     @Test
     @DisplayName("должен удалить книгу и сделать редирект")
     void shouldDeleteBook() throws Exception {
-        mvc.perform(post(BookController.URL + "/delete/{id}", changeBook.getId()))
+        mvc.perform(post("/library/books/delete/{id}", changeBook.getId()))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl(BookController.URL));
+                .andExpect(redirectedUrl("/library/books"));
 
         verify(bookService, times(1)).deleteById(changeBook.getId());
     }
