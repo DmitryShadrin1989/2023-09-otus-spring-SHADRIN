@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Edit book</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+
+        label {
+            display: inline-block;
+            width: 100px;
+        }
+
+        input:read-only {
+            background: lightgray;
+        }
+
+        .row {
+            margin-top: 10px;
+        }
+
+        .errors {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+<a th:href="@{/library}" href="homePage.html">Home</a>
+<br>
+
+<form id="create-form" action="commentCreate.html" th:action="@{/library/comments/create}" th:method="post"
+      th:object="${comment}">
+    <h3>Comment create:</h3>
+
+    <div class="row">
+        <label for="comment-content-input">Content:</label>
+        <input id="comment-content-input" name="content" type="text" th:value="*{content}" value="Positive comment"/>
+        <div class="errors" th:if="${#fields.hasErrors('content')}">Wrong content error</div>
+    </div>
+
+    <div class="row">
+        <label for="comment-book-dropdown">Book:</label>
+        <select id="comment-book-dropdown" name="bookId">
+            <option th:each="book : ${books}" th:value="${book.getId()}" th:text="${book.getTitle()}"
+                    >Books List
+            </option>
+        </select>
+    </div>
+
+    <div class="row">
+        <button type="submit">Save</button>
+        <a href="commentListForBook.html" th:href="@{/library/comments(bookId=${comment.getBookId()})}">
+            <button type="button">Cancel</button>
+        </a>
+    </div>
+</form>
+
+</body>
+</html>
