@@ -1,7 +1,6 @@
 package ru.otus.hw.controller;
 
 import jakarta.validation.Valid;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,7 +21,6 @@ import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
-@Getter
 public class CommentController {
 
     private final BookService bookService;
