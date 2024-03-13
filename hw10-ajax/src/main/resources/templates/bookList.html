@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>List of all books</title>
+    <style type="text/css">
+      .books {
+        border: 1px solid steelblue;
+        width: 300px;
+        border-collapse: collapse;
+      }
+
+      .books tr td, th {
+        padding: 5px;
+        border: 1px solid steelblue;
+      }
+
+      .books td:last-child, td:first-child {
+        width: 50px;
+      }
+    </style>
+</head>
+
+<body onload="uploadBooksToPage()">
+
+<a th:href="@{/library}" href="homePage.html">Home</a>
+<br>
+<h3>Books:</h3>
+<table class="books" id="books">
+  <thead>
+  <tr>
+    <th>№</th>
+    <th>ID</th>
+    <th>Title</th>
+    <th>Author</th>
+    <th>Genres</th>
+    <th>Action</th>
+  </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+<br>
+<a th:href="@{/library/books/create}" href="book.html" type="button"><button>Add book</button></a>
+
+<script>
+    const authorsMap = new Map();
+    fetch('/api/library/author')
+       .then(response => response.json())
+       .then(authors => authors.forEach(author => {
+           authorsMap.set(author.id, author.fullName);
+       }))
+       .catch(error => console.error(error));
+
+    const genresMap = new Map();
+    fetch('/api/library/genre')
+        .then(response => response.json())
+        .then(genres => genres.forEach(genre => {
+            genresMap.set(genre.id, genre.name);
+        }))
+        .catch(error => console.error(error));
+
+    function uploadBooksToPage() {
+      const bookTable = document.getElementById('books');
+      let count = 1;
+      fetch('/api/library/book')
+            .then(response => response.json())
+            .then(books => books.forEach(book => {
+              const row = bookTable.insertRow();
+              row.insertCell(0).innerText = count;
+              row.insertCell(1).innerText = book.id;
+              row.insertCell(2).innerText = book.title;
+              row.insertCell(3).innerText = authorsMap.get(book.authorId);
+              let genresStr = "";
+              book.genreIds.forEach(genreId => genresStr += genresMap.get(genreId) + "; ");
+              row.insertCell(4).innerText = genresStr;
+
+              const cell5 = row.insertCell(5);
+
+              const viewCommentsButton = document.createElement('button');
+              viewCommentsButton.innerHTML = "View comments";
+              viewCommentsButton.addEventListener('click', function () {
+                    location.href = "/library/book/" + book.id + "/comment";
+                });
+              viewCommentsButton.style.width = "100px";
+              viewCommentsButton.style.color = "green";
+              cell5.appendChild(viewCommentsButton);
+
+              const editButton = document.createElement('button');
+              editButton.innerHTML = "Edit";
+              editButton.addEventListener('click', function () {
+                    location.href = "/library/book/" + book.id;
+                });
+              editButton.style.width = "100px";
+              editButton.style.color = "blue";
+              cell5.appendChild(editButton);
+
+              const deleteButton = document.createElement('button');
+              deleteButton.innerHTML = "Delete";
+              deleteButton.id = book.id;
+              deleteButton.onclick = deleteBook;
+              deleteButton.style.width = "100px";
+              deleteButton.style.color = "red";
+              cell5.appendChild(deleteButton);
+
+              count++;
+            }))
+            .catch(error => console.error(error));
+  }
+
+  function deleteBook(pointerEvent) {
+      fetch('/api/library/book/' + pointerEvent.currentTarget.id, {
+          method: 'DELETE'})
+          .then(response => location.reload())
+          .catch(error => console.error(error));
+  }
+</script>
+
+</body>
+</html>
