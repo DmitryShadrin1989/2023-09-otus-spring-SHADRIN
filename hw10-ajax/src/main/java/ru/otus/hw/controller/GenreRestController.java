@@ -16,6 +16,11 @@ public class GenreRestController {
 
     @GetMapping("/api/library/genre")
     public List<Genre> getListGenres() {
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         return genreService.findAll();
     }
 }

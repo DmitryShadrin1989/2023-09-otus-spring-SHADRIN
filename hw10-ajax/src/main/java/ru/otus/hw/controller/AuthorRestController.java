@@ -16,6 +16,11 @@ public class AuthorRestController {
 
     @GetMapping("/api/library/author")
     public List<Author> getListAuthors() {
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         return authorService.findAll();
     }
 }
