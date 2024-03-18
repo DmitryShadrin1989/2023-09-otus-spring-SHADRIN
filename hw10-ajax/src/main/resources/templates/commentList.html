@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>List of all books</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+
+        label {
+            display: inline-block;
+            width: 105px;
+        }
+
+        input:read-only {
+            background: lightgray;
+        }
+
+        .row {
+            margin-top: 10px;
+        }
+
+      .comments {
+        border: 1px solid steelblue;
+        width: 300px;
+        border-collapse: collapse;
+      }
+
+      .comments tr td, th {
+        padding: 5px;
+        border: 1px solid steelblue;
+      }
+
+      .comments td:last-child, td:first-child {
+        width: 50px;
+      }
+    </style>
+</head>
+
+<body onload="uploadCommentsToPage()">
+
+<a th:href="@{/library}" href="homePage.html">Home</a>
+<br>
+<a th:href="@{/library/book}" href="bookList.html">Book list</a>
+<br>
+
+<h3>Book Info:</h3>
+<div class="row">
+  <label for="book-id">Id:</label>
+  <input id="book-id" name="id" type="text" readonly="readonly" th:value="*{bookId}" />
+</div>
+
+<div class="row">
+  <label for="book-title">Title:</label>
+  <input id="book-title" name="title" type="text" readonly="readonly"/>
+</div>
+
+<h3>Comments:</h3>
+<table class="comments" id="comments">
+  <thead>
+  <tr>
+    <th>№</th>
+    <th>ID</th>
+    <th>Content</th>
+    <th>Action</th>
+  </tr>
+  </thead>
+
+  <tbody>
+  </tbody>
+</table>
+<br>
+<a th:href="@{/library/book/{bookId}/comment/new(bookId=${bookId})}" href="comment.html" type="button"><button>Add comment</button></a>
+
+<script>
+
+    function uploadCommentsToPage() {
+        const bookId = document.getElementById('book-id');
+        const bookTitle = document.getElementById('book-title');
+        fetch('/api/library/book/' + bookId.value)
+            .then(response => response.json())
+            .then(book => {
+                bookTitle.value = book.title;
+            })
+            .catch(error => console.error(error));
+
+        const commentTable = document.getElementById('comments');
+        let count = 1;
+        fetch('/api/library/book/' + bookId.value + '/comment')
+            .then(response => response.json())
+            .then(comments => comments.forEach(comment => {
+                const row = commentTable.insertRow();
+                row.insertCell(0).innerText = count;
+                row.insertCell(1).innerText = comment.id;
+
+                const cell2 = row.insertCell(2);
+                cell2.innerText = comment.content;
+                cell2.width = "300px";
+
+                const cell3 = row.insertCell(3);
+
+                const editButton = document.createElement('button');
+                editButton.innerHTML = "Edit";
+                editButton.addEventListener('click', function () {
+                    location.href = "/library/book/" + comment.bookId + "/comment/" + comment.id;
+                });
+                editButton.style.width = "100px";
+                editButton.style.color = "blue";
+                cell3.appendChild(editButton);
+
+                const deleteButton = document.createElement('button');
+                deleteButton.innerHTML = "Delete";
+                deleteButton.id = comment.id;
+                deleteButton.bookId = comment.bookId;
+                deleteButton.onclick = deleteComment;
+                deleteButton.style.width = "100px";
+                deleteButton.style.color = "red";
+                cell3.appendChild(deleteButton);
+
+                count++;
+            }))
+    }
+
+    function deleteComment(pointerEvent) {
+        fetch('/api/library/book/' + pointerEvent.currentTarget.bookId + '/comment/' + pointerEvent.currentTarget.id, {
+            method: 'DELETE'})
+            .then(response => location.reload())
+            .catch(error => console.error(error));
+    }
+</script>
+
+</body>
+</html>
