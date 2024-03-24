@@ -11,3 +11,4 @@
 7. hw08-data-mongo - Использовать MongoDB и spring-data для хранения информации о книгах
 8. hw09-mvc-view - CRUD приложение с Web UI и хранением данных в БД
 9. hw10-ajax - Переписать приложение с использованием AJAX и REST-контроллеров
+10. hw11-web-flux - Использовать WebFlux
