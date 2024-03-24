@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>List of all books</title>
+    <style type="text/css">
+        .books {
+            border: 1px solid steelblue;
+            width: 300px;
+            border-collapse: collapse;
+        }
+
+        .books tr td, th {
+            padding: 5px;
+            border: 1px solid steelblue;
+        }
+
+        .books td:last-child, td:first-child {
+            width: 50px;
+        }
+    </style>
+</head>
+
+<body onload="uploadDataToPage()">
+
+<a th:href="@{/library}" href="homePage.html">Home</a>
+<br>
+<h3>Books:</h3>
+<table class="books" id="books">
+    <thead>
+    <tr>
+        <th>№</th>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Genres</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+<br>
+<a th:href="@{/library/book/new}" href="book.html" type="button">
+    <button>Add book</button>
+</a>
+
+<script>
+    const bookTable = document.getElementById('books');
+    const authorsMap = new Map();
+    const genresMap = new Map();
+
+    function uploadAuthors() {
+        fetch('/api/library/author')
+            .then(response => response.json())
+            .then(authors => {
+                authors.forEach(author => {
+                    authorsMap.set(author.id, author.fullName);
+                });
+
+                const rows = bookTable.rows;
+                if (rows.length > 0) {
+                    for (let i = 1; i < rows.length; i++) {
+                        const row = bookTable.rows[i];
+                        const cellAuthor = row.cells[3];
+                        if (cellAuthor.innerText === 'loading the value...') {
+                            cellAuthor.innerText = authorsMap.get(cellAuthor.id);
+                        }
+                    }
+                }
+            })
+            .catch(error => console.error(error));
+    }
+
+    function uploadGenres() {
+        return  fetch('/api/library/genre')
+            .then(response => response.json())
+            .then(genres => genres.forEach(genre => {
+                genresMap.set(genre.id, genre.name);
+            }))
+            .catch(error => console.error(error));
+    }
+
+    function uploadBooksToPage() {
+        let count = 1;
+        return fetch('/api/library/book')
+            .then(response => response.json())
+            .then(books => books.forEach(book => {
+                const row = bookTable.insertRow();
+
+                const cellLineNumber = row.insertCell(0);
+                cellLineNumber.innerText = count;
+
+                const cellBookId = row.insertCell(1);
+                cellBookId.innerText = book.id;
+
+                const cellBookTitle = row.insertCell(2);
+                cellBookTitle.innerText = book.title;
+
+                const cellAuthor = row.insertCell(3);
+                cellAuthor.id = book.authorId;
+                if (isValue(authorsMap.get(book.authorId))) {
+                    cellAuthor.innerText = authorsMap.get(book.authorId);
+                } else {
+                    cellAuthor.innerText = 'loading the value...';
+                }
+
+                const cellGenres = row.insertCell(4);
+                let genresStr = "";
+                book.genreIds.forEach(genreId => genresStr += genresMap.get(genreId) + "; ");
+                cellGenres.innerText = genresStr;
+
+                const cellActions = row.insertCell(5);
+
+                const viewCommentsButton = document.createElement('button');
+                viewCommentsButton.innerHTML = "View comments";
+                viewCommentsButton.addEventListener('click', function () {
+                    location.href = "/library/book/" + book.id + "/comment";
+                });
+                viewCommentsButton.style.width = "100px";
+                viewCommentsButton.style.color = "green";
+                cellActions.appendChild(viewCommentsButton);
+
+                const editButton = document.createElement('button');
+                editButton.innerHTML = "Edit";
+                editButton.addEventListener('click', function () {
+                    location.href = "/library/book/" + book.id;
+                });
+                editButton.style.width = "100px";
+                editButton.style.color = "blue";
+                cellActions.appendChild(editButton);
+
+                const deleteButton = document.createElement('button');
+                deleteButton.innerHTML = "Delete";
+                deleteButton.id = book.id;
+                deleteButton.onclick = deleteBook;
+                deleteButton.style.width = "100px";
+                deleteButton.style.color = "red";
+                cellActions.appendChild(deleteButton);
+
+                count++;
+            }))
+            .catch(error => console.error(error));
+    }
+
+    function uploadDataToPage() {
+        uploadAuthors();
+        Promise.all([uploadGenres()]).then(() => {
+            uploadBooksToPage();
+        });
+    }
+
+    function deleteBook(pointerEvent) {
+        fetch('/api/library/book/' + pointerEvent.currentTarget.id, {
+            method: 'DELETE'
+        })
+            .then(response => location.reload())
+            .catch(error => console.error(error));
+    }
+
+    function isValue(val){
+        return (val !== undefined && val != null && val !== '');
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Edit book</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+
+        label {
+            display: inline-block;
+            width: 105px;
+        }
+
+        input:read-only {
+            background: lightgray;
+        }
+
+        .row {
+            margin-top: 10px;
+        }
+
+        #book-genres {
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+</head>
+
+<body onload="uploadDataToPage()">
+<a th:href="@{/library}" href="homePage.html">Home</a>
+<br>
+<a th:href="@{/library/book}" href="bookList.html">Book list</a>
+<br>
+<form id="book-form">
+    <h3>Book Info:</h3>
+
+    <div class="row">
+        <label for="book-id">Id:</label>
+        <input id="book-id" name="id" type="text" readonly="readonly" th:value="*{bookId}" />
+    </div>
+
+    <div class="row">
+        <label for="book-title">Title:</label>
+        <input id="book-title" name="title" type="text"/>
+    </div>
+
+    <div class="row">
+        <label for="book-author">Author:</label>
+        <select id="book-author">
+        </select>
+    </div>
+
+    <div class="row" id="book-genres">Genres:</div>
+
+    <div class="row">
+        <button type="button" onclick="saveBook()">Save</button>
+        <a href="bookList.html" th:href="@{/library/book}">
+            <button type="button">Cancel</button>
+        </a>
+    </div>
+</form>
+
+<script>
+   function uploadDataToPage() {
+       const bookId = document.getElementById('book-id');
+       if (isValue(bookId.value)) {
+           uploadBookToPage(bookId);
+        } else {
+           uploadAuthorsToPage(null);
+           uploadGenresToPage(null);
+        }
+   }
+
+   function uploadAuthorsToPage(book) {
+       fetch('/api/library/author')
+           .then(response => response.json())
+           .then(authors => {
+               const authorSelect = document.getElementById('book-author');
+               authors.forEach(author => {
+                   const option = document.createElement('option');
+                   option.value = author.id;
+                   option.textContent = author.fullName;
+
+                   if (isValue(book) && author.id === book.authorId) {
+                       option.selected = true;
+                   }
+                   authorSelect.appendChild(option);
+               })
+           })
+           .catch(error => console.error(error));
+   }
+
+   function uploadGenresToPage(book) {
+       fetch('/api/library/genre')
+           .then(response => response.json())
+           .then(genres => {
+               const genreCheckBox = document.getElementById('book-genres');
+
+               genres.forEach(genre => {
+                   const div = document.createElement("div");
+
+                   const check = document.createElement("input");
+                   check.type = "checkbox";
+                   check.value = genre.id;
+                   if (isValue(book)) {
+                       check.checked = book.genreIds.includes(genre.id);
+                   }
+                   div.appendChild(check);
+
+                   const label = document.createElement("label");
+                   label.textContent = genre.name;
+                   div.appendChild(label);
+
+                   genreCheckBox.appendChild(div);
+               })
+           })
+           .catch(error => console.error(error));
+   }
+
+   function uploadBookToPage(bookId) {
+       const id = bookId.value;
+       const bookTitle = document.getElementById('book-title');
+
+       fetch(`/api/library/book/${id}`)
+           .then(response => response.json())
+           .then(book => {
+               bookTitle.value = book.title;
+               uploadAuthorsToPage(book);
+               uploadGenresToPage(book);
+           })
+           .catch(error => console.error(error));
+   }
+
+   function saveBook() {
+       const id = document.getElementById("book-id").value;
+       const title = document.getElementById("book-title").value;
+       const authorId = document.getElementById("book-author").value;
+       const checkedElements = document.querySelectorAll('input[type="checkbox"]:checked');
+       const genreIds = Array.prototype.map.call(checkedElements, element => element.value);
+       const bookDto = {id: id, title: title, authorId: authorId, genreIds: genreIds};
+
+       if (isValue(id)) {
+           fetch(`/api/library/book/${id}`, {
+               method: "PUT",
+               headers: {
+                   'Accept': 'application/json',
+                   'Content-Type': 'application/json'
+               },
+               body: JSON.stringify(bookDto)})
+               .then(response => response.json())
+               .then(function () {
+                   location.href = "/library/book";
+               });
+       } else {
+           fetch("/api/library/book", {
+               method: "POST",
+               headers: {
+                   'Accept': 'application/json',
+                   'Content-Type': 'application/json'
+               },
+               body: JSON.stringify(bookDto)})
+               .then(response => response.json())
+               .then(function () {
+                   location.href = "/library/book";
+               });
+       }
+   }
+
+   function isValue(val){
+       return (val !== undefined && val != null && val !== '');
+   }
+</script>
+
+</body>
+</html>
