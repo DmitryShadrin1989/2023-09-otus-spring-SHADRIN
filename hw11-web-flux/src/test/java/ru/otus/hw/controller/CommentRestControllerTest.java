@@ -33,10 +33,10 @@ import static org.mockito.Mockito.*;
 class CommentRestControllerTest {
 
     @MockBean
-    CommentRepository commentRepository;
+    private CommentRepository commentRepository;
 
     @MockBean
-    BookRepository bookRepository;
+    private BookRepository bookRepository;
 
     @Autowired
     private WebTestClient webTestClient;

@@ -36,16 +36,16 @@ import static org.mockito.Mockito.*;
 class BookRestControllerTest {
 
     @MockBean
-    BookRepository bookRepository;
+    private BookRepository bookRepository;
 
     @MockBean
-    AuthorRepository authorRepository;
+    private AuthorRepository authorRepository;
 
     @MockBean
-    GenreRepository genreRepository;
+    private GenreRepository genreRepository;
 
     @MockBean
-    CommentRepository commentRepository;
+    private CommentRepository commentRepository;
 
     @Autowired
     private WebTestClient webTestClient;

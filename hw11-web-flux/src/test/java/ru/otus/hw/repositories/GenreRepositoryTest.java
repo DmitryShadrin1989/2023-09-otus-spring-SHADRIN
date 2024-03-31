@@ -16,7 +16,7 @@ import java.util.List;
 class GenreRepositoryTest {
 
     @Autowired
-    GenreRepository repository;
+    private GenreRepository repository;
 
     private List<Genre> genres;
 
