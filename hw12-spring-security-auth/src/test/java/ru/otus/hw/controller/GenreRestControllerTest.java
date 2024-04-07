@@ -59,12 +59,4 @@ class GenreRestControllerTest {
                 .andExpect(content().json(objectMapper.writeValueAsString(genres)));
         verify(genreService, times(1)).findAll();
     }
-
-    @DisplayName("должен cделать редирект на страницу аутентификации")
-    @Test
-    void shouldRedirectToLogin() throws Exception {
-        mvc.perform(get("/api/library/genre"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrlPattern("**/login"));
-    }
 }

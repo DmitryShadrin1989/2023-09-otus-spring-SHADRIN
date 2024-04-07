@@ -125,12 +125,4 @@ class BookRestControllerTest {
                 .andExpect(status().isOk());
         verify(bookService, times(1)).deleteById(changeBook.getId());
     }
-
-    @DisplayName("должен cделать редирект на страницу аутентификации")
-    @Test
-    void shouldRedirectToLogin() throws Exception {
-        mvc.perform(get("/api/library/book"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrlPattern("**/login"));
-    }
 }

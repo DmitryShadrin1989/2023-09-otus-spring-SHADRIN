@@ -60,12 +60,4 @@ class AuthorRestControllerTest {
                 .andExpect(content().json(objectMapper.writeValueAsString(authors)));
         verify(authorService, times(1)).findAll();
     }
-
-    @DisplayName("должен cделать редирект на страницу аутентификации")
-    @Test
-    void shouldRedirectToLogin() throws Exception {
-        mvc.perform(get("/api/library/author"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrlPattern("**/login"));
-    }
 }

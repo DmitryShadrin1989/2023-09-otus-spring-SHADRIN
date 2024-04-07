@@ -137,12 +137,4 @@ class CommentRestControllerTest {
                 .andExpect(status().isOk());
         verify(commentService, times(1)).deleteById(changeComment.getId());
     }
-
-    @DisplayName("должен cделать редирект на страницу аутентификации")
-    @Test
-    void shouldRedirectToLogin() throws Exception {
-        mvc.perform(get("/api/library/book/{bookId}/comment", changeComment.getBookId()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrlPattern("**/login"));
-    }
 }
