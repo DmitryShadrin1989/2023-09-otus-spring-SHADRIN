@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Library</title>
+</head>
+<body>
+
+<div class="user" id="user">User: </div>
+
+<br>
+<h2>Library:</h2>
+
+<a th:href="@{/library/book}" href="bookList.html">Books</a>
+<br>
+<br>
+<a th:href="@{/library/author}" href="authorList.html">Authors</a>
+<br>
+<br>
+<a th:href="@{/library/genre}" href="genreList.html">Genres</a>
+
+<script>
+    fetch('/api/library/user/current')
+        .then(response => response.json())
+        .then(user => {
+            const userElement = document.getElementById('user');
+
+            const userName = document.createElement("label");
+            userName.textContent = user.userName;
+            userName.textContent += " ";
+            userElement.appendChild(userName);
+
+            const logoutButton = document.createElement('button');
+            logoutButton.innerHTML = "Logout";
+            logoutButton.addEventListener('click', function () {
+                location.href = "/library/user/logout";
+            });
+            logoutButton.style.color = "blue";
+            userElement.appendChild(logoutButton);
+
+        })
+        .catch(error => console.error(error));
+</script>
+
+</body>
+</html>
