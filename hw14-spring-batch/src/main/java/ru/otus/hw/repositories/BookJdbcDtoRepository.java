@@ -9,7 +9,6 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import ru.otus.hw.dto.BookJdbcDto;
 
 import java.sql.ResultSet;
@@ -24,14 +23,6 @@ import java.util.Map;
 public class BookJdbcDtoRepository implements PagingAndSortingRepository<BookJdbcDto, Long> {
 
     private final NamedParameterJdbcOperations namedParameterJdbcOperations;
-
-    @Transactional
-    public void insertIntoTempTable(Long bookTableId, String bookDocumentId) {
-        namedParameterJdbcOperations.update(
-                "insert into temp_book_ids(id_table, id_document) values (:bookTableId, :bookDocumentId)",
-                Map.of("bookTableId", bookTableId,
-                "bookDocumentId", bookDocumentId));
-    }
 
     // the method is not implemented
     @Override

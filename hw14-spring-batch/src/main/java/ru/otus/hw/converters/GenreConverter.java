@@ -5,8 +5,8 @@ import org.springframework.stereotype.Component;
 import ru.otus.hw.dto.GenreJdbcDto;
 import ru.otus.hw.models.Genre;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class GenreConverter {
@@ -14,7 +14,7 @@ public class GenreConverter {
     private final Map<Long, Genre> genreIdsMap;
 
     public GenreConverter() {
-        this.genreIdsMap = new HashMap<>();
+        this.genreIdsMap = new ConcurrentHashMap<>();
     }
 
     public String genreToString(Genre genre) {

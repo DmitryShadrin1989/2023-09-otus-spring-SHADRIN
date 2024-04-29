@@ -5,8 +5,8 @@ import org.springframework.stereotype.Component;
 import ru.otus.hw.dto.AuthorJdbcDto;
 import ru.otus.hw.models.Author;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class AuthorConverter {
@@ -14,7 +14,7 @@ public class AuthorConverter {
     private final Map<Long, Author> authorIdsMap;
 
     public AuthorConverter() {
-        this.authorIdsMap = new HashMap<>();
+        this.authorIdsMap = new ConcurrentHashMap<>();
     }
 
     public String authorToString(Author author) {
