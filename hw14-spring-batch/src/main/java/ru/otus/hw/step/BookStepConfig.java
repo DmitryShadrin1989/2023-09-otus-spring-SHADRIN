@@ -5,10 +5,13 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
+import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.data.MongoItemWriter;
 import org.springframework.batch.item.data.RepositoryItemReader;
 import org.springframework.batch.item.data.builder.RepositoryItemReaderBuilder;
+import org.springframework.batch.item.database.JdbcBatchItemWriter;
+import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
 import org.springframework.batch.item.support.CompositeItemWriter;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
@@ -16,14 +19,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.transaction.PlatformTransactionManager;
 import ru.otus.hw.converters.BookConverter;
 import ru.otus.hw.dto.BookJdbcDto;
 import ru.otus.hw.dto.RelationOfBookAndJdbcIdDto;
+import ru.otus.hw.models.Book;
 import ru.otus.hw.repositories.BookJdbcDtoRepository;
 
 import javax.sql.DataSource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -40,8 +44,6 @@ public class BookStepConfig {
     private final PlatformTransactionManager platformTransactionManager;
 
     private final DataSource dataSource;
-
-    private final NamedParameterJdbcOperations namedParameterJdbcOperations;
 
     private final MongoTemplate mongoTemplate;
 
@@ -66,32 +68,33 @@ public class BookStepConfig {
     }
 
     @Bean
-    public ItemWriter<RelationOfBookAndJdbcIdDto> bookItemWriter() {
-        return relations -> {
-            for (RelationOfBookAndJdbcIdDto relation : relations) {
-                mongoTemplate.insert(relation.getBook(), "books");
-            }
-        };
+    public CastomMongoItemWriter<RelationOfBookAndJdbcIdDto> bookCastomMongoItemWriter() {
+        CastomMongoItemWriter<RelationOfBookAndJdbcIdDto> castomMongoItemWriter =
+                new CastomMongoItemWriter<>();
+        castomMongoItemWriter.setCollection("books");
+        castomMongoItemWriter.setTemplate(mongoTemplate);
+
+        return castomMongoItemWriter;
     }
 
     @Bean
-    public ItemWriter<RelationOfBookAndJdbcIdDto> tempBookIdsItemWriter() {
-        return relations -> {
-            for (RelationOfBookAndJdbcIdDto relation : relations) {
-                    namedParameterJdbcOperations.update(
-                            "insert into temp_book_ids(id_table, id_document) values (:id_table, :id_document)",
-                            Map.of("id_table", relation.getJdbcId(),
-                                    "id_document", relation.getBook().getId()));
-            }
-        };
+    public JdbcBatchItemWriter<RelationOfBookAndJdbcIdDto> tempBookIdsJdbcBatchItemWriter() {
+        return new JdbcBatchItemWriterBuilder<RelationOfBookAndJdbcIdDto>()
+                .dataSource(dataSource)
+                .sql("insert into temp_book_ids(id_table, id_document) values (?, ?)")
+                .itemPreparedStatementSetter(
+                        (item, ps) -> {
+                            ps.setLong(1, item.getJdbcId());
+                            ps.setString(2, item.getBook().getId());
+                        }).build();
     }
 
     @Bean
     public CompositeItemWriter<RelationOfBookAndJdbcIdDto> bookCompositeItemWriter(
-            ItemWriter<RelationOfBookAndJdbcIdDto> bookItemWriter,
-            ItemWriter<RelationOfBookAndJdbcIdDto> tempBookIdsItemWriter) {
+            MongoItemWriter<RelationOfBookAndJdbcIdDto> bookMongoItemWriter,
+            JdbcBatchItemWriter<RelationOfBookAndJdbcIdDto> tempBookIdsJdbcBatchItemWriter) {
         CompositeItemWriter<RelationOfBookAndJdbcIdDto> writer = new CompositeItemWriter<>();
-        writer.setDelegates(List.of(bookItemWriter, tempBookIdsItemWriter));
+        writer.setDelegates(List.of(bookMongoItemWriter, tempBookIdsJdbcBatchItemWriter));
         return writer;
     }
 
@@ -129,5 +132,19 @@ public class BookStepConfig {
                     return RepeatStatus.FINISHED;
                 }), platformTransactionManager)
                 .build();
+    }
+
+    public static class CastomMongoItemWriter<T> extends MongoItemWriter<T> {
+
+        @Override
+        public void write(Chunk<? extends T> chunk) throws Exception {
+            List<? extends T> items = chunk.getItems();
+            List<Book> books = new ArrayList<>();
+            for (T item : items) {
+                RelationOfBookAndJdbcIdDto relation = (RelationOfBookAndJdbcIdDto) item;
+                books.add(relation.getBook());
+            }
+            super.write(new Chunk(books));
+        }
     }
 }
