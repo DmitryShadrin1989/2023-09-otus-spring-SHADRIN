@@ -14,3 +14,4 @@
 10. hw11-web-flux - Использовать WebFlux
 11. hw12-spring-security-auth - В CRUD Web-приложение добавить механизм аутентификации
 12. hw13-spring-security-auth-url - Ввести авторизацию на основе URL и/или доменных сущностей
+13. hw15-spring-integration - Реализовать обработку доменной сущности через каналы Spring Integration
