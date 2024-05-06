@@ -16,3 +16,4 @@
 12. hw13-spring-security-auth-url - Ввести авторизацию на основе URL и/или доменных сущностей
 13. hw14-spring-batch - На основе Spring Batch разработать процедуру миграции данных из реляционного хранилища в NoSQL или наоборот
 14. hw15-spring-integration - Реализовать обработку доменной сущности через каналы Spring Integration
+15. hw16-spring-boot-actuator - Использовать метрики, healthchecks и logfile
