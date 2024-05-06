@@ -1,0 +1,59 @@
+spring:
+
+  batch:
+    job:
+      enabled: false
+
+  data:
+    mongodb:
+      host: localHost
+      port: 0 # when flapdoodle using
+      database: testLibraryMongo
+
+  shell:
+    interactive:
+      enabled: false
+
+    command:
+      version:
+        enabled: false
+
+  datasource:
+    url: jdbc:h2:mem:maindb
+  sql:
+    init:
+      mode: always
+      data-locations: data.sql
+      schema-locations: schema.sql
+
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+
+    show-sql: true
+
+    properties:
+      hibernate:
+        format_sql: true
+
+  h2:
+    console:
+      path: /h2-console
+      settings:
+        web-allow-others: true
+
+de:
+  flapdoodle:
+    mongodb:
+      embedded:
+        version: 4.0.2
+
+mongock:
+  runner-type: "InitializingBean"
+  change-logs-scan-package:
+    - ru.otus.hw.mongodb.changelogs.test
+  mongo-db:
+    write-concern:
+      journal: false
+    read-concern: local
