@@ -17,3 +17,4 @@
 13. hw14-spring-batch - На основе Spring Batch разработать процедуру миграции данных из реляционного хранилища в NoSQL или наоборот
 14. hw15-spring-integration - Реализовать обработку доменной сущности через каналы Spring Integration
 15. hw16-spring-boot-actuator - Использовать метрики, healthchecks и logfile
+16. hw17-docker - Обернуть приложение в docker-контейнер
