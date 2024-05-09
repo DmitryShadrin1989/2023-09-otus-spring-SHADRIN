@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Comment</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+
+        label {
+            display: inline-block;
+            width: 100px;
+        }
+
+        input:read-only {
+            background: lightgray;
+        }
+
+        .row {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body onload="uploadDataToPage()">
+<a th:href="@{/library}" href="homePage.html">Home</a>
+<br>
+<a th:href="@{/library/book}" href="bookList.html">Book list</a>
+<br>
+<a th:href="@{/library/book/{bookId}/comment(bookId=${bookId})}" href="commentList.html">Comment list</a>
+<br>
+<form id="comment-form">
+    <h3>Comment Info:</h3>
+
+    <input id="book-id" name="bookId" type="hidden" th:value="*{bookId}" />
+
+    <div class="row">
+        <label for="comment-id">Id:</label>
+        <input id="comment-id" name="id" type="text" readonly="readonly" th:value="*{id}" />
+    </div>
+
+    <div class="row">
+        <label for="comment-content">Content:</label>
+        <textarea id="comment-content" name="content" value="Positive comment"></textarea>
+    </div>
+
+    <div class="row">
+        <label for="comment-book">Book:</label>
+        <select id="comment-book">
+        </select>
+    </div>
+
+    <div class="row" id="buttonSave">
+        <button type="button" onclick="saveComment()">Save</button>
+        <a href="commentList.html" th:href="@{/library/book/{bookId}/comment(bookId=${bookId})}">
+            <button type="button">Cancel</button>
+        </a>
+    </div>
+</form>
+
+<script>
+    const bookId = document.getElementById('book-id');
+
+    function uploadDataToPage() {
+        const commentId = document.getElementById('comment-id');
+        if (isValue(commentId.value)) {
+            uploadCommentToPage(commentId);
+        }
+        uploadBooksToPage();
+    }
+
+    function uploadCommentToPage(commentId) {
+        const content = document.getElementById('comment-content');
+
+        fetch('/api/library/book/' + bookId.value + '/comment/' + commentId.value)
+            .then(response => response.json())
+            .then(comment => {
+                content.value = comment.content;
+            })
+            .catch(error => console.error(error));
+    }
+
+    function uploadBooksToPage() {
+        fetch('/api/library/book')
+            .then(response => response.json())
+            .then(books => {
+                const bookSelect = document.getElementById('comment-book');
+                books.forEach(book => {
+                    const option = document.createElement('option');
+                    option.value = book.id;
+                    option.textContent = book.title;
+
+                    if (isValue(bookId) && book.id === bookId.value) {
+                        option.selected = true;
+                    }
+                    bookSelect.appendChild(option);
+                })
+            })
+            .catch(error => console.error(error));
+    }
+
+    function saveComment() {
+        const id = document.getElementById("comment-id").value;
+        const content = document.getElementById("comment-content").value;
+        const bookId = document.getElementById("comment-book").value;
+        const commentDto = {id: id, content: content, bookId: bookId};
+
+        if (isValue(id)) {
+            fetch("/api/library/book/" + bookId + "/comment/" + id, {
+                method: "PUT",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(commentDto)
+            })
+                .then(response => response.json())
+                .then(function () {
+                    location.href = "/library/book/" + bookId + "/comment";
+                })
+                .catch(error => {
+                    console.error(error);
+                    addErrorMessage("Insufficient permissions to change the element");
+                });
+        } else {
+            fetch("/api/library/book/" + bookId + "/comment", {
+                method: "POST",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(commentDto)
+            })
+                .then(response => response.json())
+                .then(function () {
+                    location.href = "/library/book/" + bookId + "/comment";
+                })
+                .catch(error => {
+                    console.error(error);
+                    addErrorMessage("Insufficient permissions to add an element");
+                });
+        }
+    }
+
+    function addErrorMessage(message) {
+        const newErrorMessage = document.createElement("label");
+        newErrorMessage.textContent += message;
+        newErrorMessage.style.color = "red";
+        document.body.appendChild(newErrorMessage);
+        document.body.appendChild(document.createElement('br'));
+    }
+
+    function isValue(val) {
+        return (val !== undefined && val != null && val !== '');
+    }
+</script>
+
+</body>
+</html>
