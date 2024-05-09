@@ -1,0 +1,61 @@
+spring:
+  data:
+    mongodb:
+      host: localHost
+      port: 27017
+      database: libraryMongo
+    rest:
+      base-path: data-rest
+
+  jmx:
+    enabled: true
+
+mongock:
+  runner-type: "InitializingBean"
+  change-logs-scan-package:
+    - ru.otus.hw.mongodb.changelogs
+  mongo-db:
+    write-concern:
+      journal: false
+    read-concern: local
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+  health:
+    defaults:
+      enabled: true
+
+logging:
+  file:
+    name: ./logs/library.log
+
+resilience4j:
+  circuitbreaker:
+    metrics:
+      enabled: true
+    configs:
+      default:
+        slowCallDurationThreshold: 5s
+        slowCallRateThreshold: 5
+        failureRateThreshold: 5
+        waitDurationInOpenState: 5s
+        minimumNumberOfCalls: 5
+        maxWaitDurationInHalfOpenState: 5s
+    instances:
+      authorCircuitBreaker:
+        baseConfig: default
+      bookCircuitBreaker:
+        baseConfig: default
+      commentCircuitBreaker:
+        baseConfig: default
+      genreCircuitBreaker:
+        baseConfig: default
